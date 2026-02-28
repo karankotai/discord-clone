@@ -5,9 +5,10 @@ import { db } from "@/lib/db";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { serverId: string } }
+  { params }: { params: Promise<{ serverId: string }> }
 ) {
   try {
+    const { serverId } = await params;
     const profile = await currentProfile();
 
     if (!profile) {
@@ -16,7 +17,7 @@ export async function DELETE(
 
     const server = await db.server.delete({
       where: {
-        id: params.serverId,
+        id: serverId,
         profileId: profile.id,
       }
     });
@@ -30,9 +31,10 @@ export async function DELETE(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { serverId: string } }
+  { params }: { params: Promise<{ serverId: string }> }
 ) {
   try {
+    const { serverId } = await params;
     const profile = await currentProfile();
     const { name, imageUrl } = await req.json();
 
@@ -42,7 +44,7 @@ export async function PATCH(
 
     const server = await db.server.update({
       where: {
-        id: params.serverId,
+        id: serverId,
         profileId: profile.id,
       },
       data: {

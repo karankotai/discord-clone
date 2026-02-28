@@ -1,4 +1,3 @@
-import { redirectToSignIn } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
 import { db } from "@/lib/db";
@@ -10,17 +9,18 @@ const ServerIdLayout = async ({
   params,
 }: {
   children: React.ReactNode;
-  params: { serverId: string };
+  params: Promise<{ serverId: string }>;
 }) => {
+  const { serverId } = await params;
   const profile = await currentProfile();
 
   if (!profile) {
-    return redirectToSignIn();
+    return redirect("/sign-in");
   }
 
   const server = await db.server.findUnique({
     where: {
-      id: params.serverId,
+      id: serverId,
       members: {
         some: {
           profileId: profile.id
@@ -33,11 +33,11 @@ const ServerIdLayout = async ({
     return redirect("/");
   }
 
-  return ( 
+  return (
     <div className="h-full">
-      <div 
+      <div
       className="hidden md:flex h-full w-60 z-20 flex-col fixed inset-y-0">
-        <ServerSidebar serverId={params.serverId} />
+        <ServerSidebar serverId={serverId} />
       </div>
       <main className="h-full md:pl-60">
         {children}

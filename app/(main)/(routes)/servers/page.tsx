@@ -1,12 +1,11 @@
 import { currentProfile } from "@/lib/current-profile";
 import { db } from "@/lib/db";
-import { redirectToSignIn } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
 const ServerRPage = async() => {
     const profile = await currentProfile();
     if(!profile){
-        return redirectToSignIn();
+        return redirect("/sign-in");
     }
     const server = await db.server.findFirst({
         include : {

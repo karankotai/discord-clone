@@ -1,4 +1,3 @@
-import { redirectToSignIn } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import { ChannelType } from "@prisma/client";
 
@@ -10,30 +9,31 @@ import { MediaRoom } from "@/components/media-room";
 import { db } from "@/lib/db";
 
 interface ChannelIdPageProps {
-  params: {
+  params: Promise<{
     serverId: string;
     channelId: string;
-  }
+  }>
 }
 
 const ChannelIdPage = async ({
   params
 }: ChannelIdPageProps) => {
+  const { serverId, channelId } = await params;
   const profile = await currentProfile();
 
   if (!profile) {
-    return redirectToSignIn();
+    return redirect("/sign-in");
   }
 
   const channel = await db.channel.findUnique({
     where: {
-      id: params.channelId,
+      id: channelId,
     },
   });
 
   const member = await db.member.findFirst({
     where: {
-      serverId: params.serverId,
+      serverId: serverId,
       profileId: profile.id,
     }
   });
